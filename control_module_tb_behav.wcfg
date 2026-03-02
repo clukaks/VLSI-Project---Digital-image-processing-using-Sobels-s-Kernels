@@ -1,0 +1,93 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use std.textio.all;
+use ieee.std_logic_textio.all; -- Za upis std_logic_vector-a
+
+entity control_module_tb is
+end entity;
+
+architecture tb of control_module_tb is
+    --signali naseg control_modula
+    signal clk  : std_logic := '0';
+    signal reset : std_logic := '0';
+    signal button : std_logic := '0';
+    signal uart_tx : std_logic;
+
+    constant CLK_PERIOD : time := 10 ns; -- 100 MHz
+    
+    --ako radimo sa obicnim uart u realnosti imamo da je baud rate 115200, i bit period je vise od 8500ns
+    --za tb cemo uzeti da je to manje
+    constant BIT_PERIOD : time := 40 ns; -- Podeseno za 25 MHz (Turbo)
+
+begin
+
+    --Instanciranje Control Modula
+    DUT: entity work.control_module
+    port map (
+        clk   => clk,
+        reset => reset,
+        button => button,
+        uart_tx => uart_tx,
+        led => open
+    );
+    
+    clk <= not clk after CLK_PERIOD / 2;
+
+    STIMULUS: process is
+    begin
+        -- Inicijalizacija
+        reset <= '1';
+        button <= '0';
+        wait for 100 ns;
+        reset <= '0';
+        wait for 100 ns;
+
+        -- Simulacija pritiska na taster (Start)
+        -- Taster mora biti pritisnut dovoljno dugo da ga debouncer uhvati
+        -- drzimo taster pritisnut npr. 200 us (dovoljno za vecinu modela)
+        button <= '1';
+        wait for 1 us; 
+        button <= '0';
+
+        -- Cekamo da se zavrsi obrada i slanje
+        wait;
+    end process;
+
+    -- Ovaj proces slusa TX liniju i upisuje podatke u fajl, sto je simulacija prikaza na ekranu
+    UART_PROC: process
+        file outfile : text open write_mode is "fpga_output.txt";
+        variable inline : line;
+        variable rx_byte : std_logic_vector(7 downto 0);
+    begin
+        -- Cekamo pocetak prenosa, opadajuca je ivica u pitanju, jer tako radi nas UART
+        wait until falling_edge(uart_tx);
+        -- Cekamo polovinu bit perioda da dodjemo na sredinu Start bita
+        -- to je da ne bi brojali odma od padajuce ivice, sto moze da dovede do nepravilnosti
+        -- ovo je da kazem "sigurna zona"
+        wait for BIT_PERIOD / 2; --
+        
+        -- Proveravamo da li je i dalje 0
+       if uart_tx = '0' then
+            -- Cekamo ceo bit period da dodjemo na sredinu prvog bita podataka
+            wait for BIT_PERIOD;
+            
+            -- Citanje poruke koju salje nas uart predajnik
+            for i in 0 to 7 loop
+                rx_byte(i) := uart_tx;
+                wait for BIT_PERIOD;
+            end loop;
+
+            -- Sada smo u sredini Stop bita. Proveravamo da li je 1 po standardu.
+            if uart_tx = '1' then --ovo je nas stop bit
+                -- Upisujemo u nas fajl samo ako je prenos bio regularan
+                write(inline, to_integer(unsigned(rx_byte)));
+                writeline(outfile, inline);
+            else
+                report "GRESKA" severity warning;
+            end if;
+            
+        end if;
+    end process;
+
+end architecture;

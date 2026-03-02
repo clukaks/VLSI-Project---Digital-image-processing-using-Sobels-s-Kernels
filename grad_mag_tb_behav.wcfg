@@ -1,0 +1,90 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library std;
+use std.textio.all;
+use ieee.std_logic_textio.all;
+
+entity grad_mag_tb is
+end;
+
+architecture tb of grad_mag_tb is
+
+  constant C_CLK_PERIOD : time := 10 ns;
+
+  signal clk, reset : std_logic := '0';
+  signal start      : std_logic := '0';
+
+  signal ram_enb   : std_logic;
+  signal ram_addrb : std_logic_vector(15 downto 0);
+  signal ram_doutb : std_logic_vector(7 downto 0);
+  signal ram_wea   : std_logic;
+  signal ram_addra : std_logic_vector(15 downto 0);
+  signal ram_dina  : std_logic_vector(7 downto 0);
+
+  signal wr_pulse : std_logic;
+  signal wr_data  : std_logic_vector(7 downto 0);
+
+  file f_out : text open write_mode is "gradient_out22.txt";
+
+begin
+
+  clk <= not clk after C_CLK_PERIOD/2;
+
+  RAM: entity work.im_ram
+    port map (
+      clka   => clk,
+      wea    => ram_wea,
+      addra  => ram_addra,
+      dina   => ram_dina,
+      enb    => ram_enb,
+      addrb  => ram_addrb,
+      doutb  => ram_doutb,
+      rstb   => '0',
+      regceb => '1'
+    );
+
+  DUT: entity work.grad_mag
+    port map (
+      clk       => clk,
+      reset     => reset,
+      grad_start     => start,
+      ram_enb   => ram_enb,
+      ram_addrb => ram_addrb,
+      ram_doutb => ram_doutb,
+      ram_wea   => ram_wea,
+      ram_addra => ram_addra,
+      ram_dina  => ram_dina,
+      wr_pulse  => wr_pulse,
+      wr_data   => wr_data
+    );
+
+  FILE_WRITE: process(clk)
+    variable L : line;
+  begin
+    if rising_edge(clk) then
+      if wr_pulse='1' then
+        write(L, wr_data);
+        writeline(f_out, L);
+      end if;
+    end if;
+  end process;
+
+  STIMULUS: process
+  begin
+    reset <= '1';
+    start <= '0';
+    wait for C_CLK_PERIOD;
+
+    reset <= '0';
+    wait for C_CLK_PERIOD;
+
+    start <= '1';          
+    wait for C_CLK_PERIOD;
+    start <= '0';
+
+    wait;
+  end process;
+
+end architecture;

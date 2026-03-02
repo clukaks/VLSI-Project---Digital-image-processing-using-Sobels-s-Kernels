@@ -1,0 +1,101 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.RAM_definitions_PK.all; 
+
+entity image_uart_tx_tb is
+    -- Nema portova
+end entity;
+
+architecture Behavioral of image_uart_tx_tb is
+    -- Signali
+    signal clk        : std_logic := '0';
+    signal reset      : std_logic := '0';
+    signal start_uart : std_logic := '0';
+    
+    signal ram_addr_bus : std_logic_vector(15 downto 0); --preko njega uart govori memoriji
+                                                         --koji mu piksel treba
+    signal ram_data_bus : std_logic_vector(7 downto 0);  --podatak koji ide od RAMa ka UARTu
+    
+    signal tx         : std_logic;
+    signal done       : std_logic;
+
+    -- Dummy signali za RAM port A, da ne bi visio, jer sada nema nikakvog upisa
+    signal dummy_addra : std_logic_vector(15 downto 0) := (others => '0');
+    signal dummy_dina  : std_logic_vector(7 downto 0) := (others => '0');
+
+    constant CLK_PERIOD : time := 1 ns; -- 100 MHz
+
+begin
+
+    --Instanca UART Kontrolera
+    uart_inst: entity work.image_uart_tx
+    port map (
+        clk        => clk,
+        reset      => reset,
+        start_uart => start_uart,
+        ram_addr   => ram_addr_bus,
+        ram_data   => ram_data_bus,
+        tx         => tx,
+        done       => done
+    );
+
+    --Instanca PRAVOG RAM-a (Ucitava cameraman.dat)
+    ram_inst: entity work.im_ram
+    generic map (
+        G_RAM_WIDTH => 8,
+        G_RAM_DEPTH => 65536,
+        G_RAM_PERFORMANCE => "LOW_LATENCY"
+    )
+    port map (
+        clka   => clk,
+        wea    => '0',
+        addra  => dummy_addra,
+        dina   => dummy_dina,
+        enb    => '1',
+        rstb   => reset,
+        regceb => '0',
+        addrb  => ram_addr_bus,
+        doutb  => ram_data_bus 
+    );
+
+    clk_process : process is
+    begin
+        clk <= '0';
+        wait for CLK_PERIOD / 2;
+        clk <= '1';
+        wait for CLK_PERIOD / 2;
+    end process;
+
+    STIMULUS: process is
+    begin
+        reset <= '1';
+        wait for 100 ns;
+        reset <= '0';
+        wait for 100 ns;
+
+        -- Start
+        report "--- POCINJE SLANJE SLIKE ---";
+        start_uart <= '1';
+        wait for 20 ns;
+        start_uart <= '0';
+
+        -- Pustamo da tece
+        wait until done = '1';
+        
+        report "SLANJE ZAVRSENO";
+        assert false report "Kraj simulacije" severity failure;
+        wait;
+    end process;
+    
+    -- Svaki put kad se promeni adresa, ispisujemo u konzoli, da vidimo
+    -- da li prolazimo kroz RAM
+    monitor_proc: process(ram_addr_bus) is
+    begin
+        report "RAM Adresa: " & integer'image(to_integer(unsigned(ram_addr_bus))) & 
+            " | Podatak: " & integer'image(to_integer(unsigned(ram_data_bus)));
+    end process monitor_proc;
+
+end architecture;

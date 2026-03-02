@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="sqrt_pipelined_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="sqrt_pipelined_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="449.673 ns"></ZoomEndTime>
+      <Cursor1Time time="210.846 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="224"></NameColumnWidth>
+      <ValueColumnWidth column_width="100"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="14" />
+   <wvobject fp_name="/sqrt_pipelined_tb/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/reset" type="logic">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/d_in" type="array">
+      <obj_property name="ElementShortName">d_in[15:0]</obj_property>
+      <obj_property name="ObjectShortName">d_in[15:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/valid_in" type="logic">
+      <obj_property name="ElementShortName">valid_in</obj_property>
+      <obj_property name="ObjectShortName">valid_in</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/d_out" type="array">
+      <obj_property name="ElementShortName">d_out[15:0]</obj_property>
+      <obj_property name="ObjectShortName">d_out[15:0]</obj_property>
+      <obj_property name="Radix">REALRADIX</obj_property>
+      <obj_property name="radix_realType">UNSIGNEDFIXEDPOINTRADIX</obj_property>
+      <obj_property name="radix_fractionWidth">8</obj_property>
+      <obj_property name="radix_otherWidth">0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/valid_out" type="logic">
+      <obj_property name="ElementShortName">valid_out</obj_property>
+      <obj_property name="ObjectShortName">valid_out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/exp_mem" type="array">
+      <obj_property name="ElementShortName">exp_mem[0:1023][15:0]</obj_property>
+      <obj_property name="ObjectShortName">exp_mem[0:1023][15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/wr_ptr" type="other">
+      <obj_property name="ElementShortName">wr_ptr</obj_property>
+      <obj_property name="ObjectShortName">wr_ptr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/rd_ptr" type="other">
+      <obj_property name="ElementShortName">rd_ptr</obj_property>
+      <obj_property name="ObjectShortName">rd_ptr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/done_sending" type="logic">
+      <obj_property name="ElementShortName">done_sending</obj_property>
+      <obj_property name="ObjectShortName">done_sending</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/C_IN_BW" type="other">
+      <obj_property name="ElementShortName">C_IN_BW</obj_property>
+      <obj_property name="ObjectShortName">C_IN_BW</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/C_OUT_BW" type="other">
+      <obj_property name="ElementShortName">C_OUT_BW</obj_property>
+      <obj_property name="ObjectShortName">C_OUT_BW</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/C_OUT_FRAC" type="other">
+      <obj_property name="ElementShortName">C_OUT_FRAC</obj_property>
+      <obj_property name="ObjectShortName">C_OUT_FRAC</obj_property>
+   </wvobject>
+   <wvobject fp_name="/sqrt_pipelined_tb/C_CLK_PERIOD" type="other">
+      <obj_property name="ElementShortName">C_CLK_PERIOD</obj_property>
+      <obj_property name="ObjectShortName">C_CLK_PERIOD</obj_property>
+   </wvobject>
+</wave_config>

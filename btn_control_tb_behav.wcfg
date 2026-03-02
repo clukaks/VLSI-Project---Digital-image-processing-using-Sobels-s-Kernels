@@ -1,0 +1,80 @@
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity btn_control_tb is
+end btn_control_tb;
+
+architecture tb_btn_control of btn_control_tb is
+    
+    constant C_CLK_PERIOD : time := 10 ns;
+    
+    component btn_control is
+        generic (
+            TIMER_MAX : integer := 5 --mali broj za konstantu za debalanisranje radi simulacije
+        );
+        port (
+            clk   : in  std_logic;
+            reset : in  std_logic;
+            button : in  std_logic;
+            button_pulse : out std_logic
+        );
+    end component;
+    
+    signal clk_tb : std_logic := '1';
+    signal reset : std_logic := '0';
+    signal button : std_logic := '0';
+    signal button_pulse : std_logic;
+    
+begin
+
+    DUT : btn_control
+        generic map (
+            TIMER_MAX => 5
+        )
+        port map (
+            clk => clk_tb,
+            reset => reset,
+            button => button,
+            button_pulse => button_pulse
+        );
+
+    clk_tb <= not clk_tb after C_CLK_PERIOD/2;
+
+    STIMULUS : process
+    begin
+        -- Reset
+        reset  <= '1';
+        button <= '0';
+        wait for C_CLK_PERIOD * 1;
+        
+        reset <= '0';
+        wait for C_CLK_PERIOD * 2;
+
+        --Simulacija bounce-a
+        button <= '1';
+        wait for C_CLK_PERIOD;
+        button <= '0';
+        wait for C_CLK_PERIOD;
+        button <= '1';
+        wait for C_CLK_PERIOD;
+        button <= '0';
+        wait for C_CLK_PERIOD;
+
+        -- Stabilan pritisak
+        button <= '1';
+        wait for C_CLK_PERIOD * 7;
+
+        -- Otpuštanje
+        button <= '0';
+        wait for C_CLK_PERIOD * 10;
+
+        -- Drugi pritisak
+        button <= '1';
+        wait for C_CLK_PERIOD * 7;
+        button <= '0';
+
+        wait;
+    end process STIMULUS;
+
+end architecture tb_btn_control ;
